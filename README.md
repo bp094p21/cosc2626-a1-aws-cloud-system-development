@@ -20,6 +20,7 @@ python3 create_music_table.py
 ## create_music_table
 - reads AWS credentials and config in `~/.aws/*`.
 - reads `AWS_SESSION_TOKEN` env var
+- DynamoDB is schema-less for non-key attributes, so you can add additional attributes (e.g. `year`, `web_url`, `image_url`) when you're inserting items into the table without specifying them in the table schema.
 
 ## Creating Python Virtual Env
 
