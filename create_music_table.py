@@ -1,5 +1,4 @@
 import boto3
-import configparser
 import os
 from aws import get_aws_credentials_and_config
 
