@@ -1,0 +1,43 @@
+
+body {
+    /* height: 100vh; */
+    background-color: black;
+    color: antiquewhite;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5em;
+}
+
+h1 {
+    font-size: 6em;
+    /* height: 20vh; */
+    user-select: none;
+    -webkit-user-select: none; /* For Safari */
+    -moz-user-select: none; /* For Firefox */
+    -ms-user-select: none; /* For Internet Explorer/Edge */
+}
+
+h1:hover {
+    cursor: default;
+}
+
+section {
+    margin: 0;
+    gap: 2em;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+button {
+    width: 8em;
+    height: 4em;
+    font-size: 3em;
+}
+
+button:hover {
+background-color: #3e8e41;
+}
