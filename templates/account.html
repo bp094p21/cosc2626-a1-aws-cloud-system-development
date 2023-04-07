@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Login</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="{{ url_for('static', filename='reset.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	<style>
+		h2 {
+			font-size: 2em;
+			text-align: left;
+			width: 100vw;
+			padding-left: 2em;
+		}
+		.title-card {
+			display: flex;
+			flex-direction: column;
+		}
+		form {
+			background-color: #fff;
+			padding: 20px;
+			max-width: 500px;
+			/* margin: 50px auto; */
+			border-radius: 5px;
+			box-shadow: 0 0 10px rgba(0,0,0,0.3);
+		}
+		label {
+			display: block;
+			font-size: 1.25em;
+			/* margin-bottom: 10px; */
+			font-weight: bold;
+			display: flex;
+			/* flex-direction: column; */
+    		align-items: center;
+    		justify-content: center;
+			text-align: center;
+		}
+		input[type="text"],
+		input[type="submit"] {
+			background-color: grey;
+			color: #fff;
+			padding: 10px 20px;
+			border: none;
+			border-radius: 3px;
+			cursor: pointer;
+			font-size: 16px;
+		}
+		input[type="submit"]:hover {
+			background-color: grey;
+		}
+		.logout-btn {
+    		width: 4em;
+    		height: 1.5em;
+    		font-size: 1.5em;
+			align-self: flex-start;
+			margin-left: 1em;
+		}
+		hr {
+			color: white;
+			width: 100vw;
+		}
+		.search-form {
+			background-color: black;
+			padding: 5px;
+			max-width: 500px;
+			/* margin: 10px auto; */
+			border-radius: 5px;
+			box-shadow: 0 0 10px rgba(0,0,0,0.3);
+			display: flex;
+			flex-direction: row;
+    		align-items: center;
+    		justify-content: center;
+			gap: 1em;
+		}
+		.title {
+			font-weight: bold;
+		}
+		.unsub-btn {
+			margin: 0;
+		}
+		.subs {
+			margin-left: 5vw;
+			margin-right: 5vw;
+			margin-bottom: 5em;
+			width: 90vw;
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-start;
+			flex-wrap: wrap;
+			gap: 2em;
+		}
+		.msg {
+			font-size: 1.5em;
+			font-style: italic;
+		}
+	</style>
+</head>
+<body>
+	<h1>Account</h1>
+    <h2>{{ user['username'] }}</h2>
+            <!-- Add a div to hold the pop-up message -->
+	<!-- <section> -->
+	<button class="logout-btn" onclick="location.href='/logout'">Logout</button>
+	<!-- </section> -->
+	<hr>
+
+    <h2>
+        Search
+    </h2>
+
+    <form class="search-form" method="POST" action="{{ url_for('user_account') }}">
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title">
+
+        <label for="year">Year</label>
+        <!-- <input type="number" id="year" name="year"> -->
+		<select id="year" name="year">
+			<option value="">Select a year</option>
+			{% for year in range(1957, 2013) %}
+				<option value="{{ year }}">{{ year }}</option>
+			{% endfor %}
+		</select>
+		<!-- add more options for previous years as needed -->
+
+        <label for="artist">Artist</label>
+        <input type="text" id="artist" name="artist">
+
+        <input type="submit" value="Search">
+    </form>
+    {% if msg %}
+        <div class="msg">
+            {{msg}}
+        </div>
+    {% endif %}
+
+    {% if session['results'] %}
+	<h2>Results Found:</h2>
+	<div class="subs">
+        {% for result in session['results'] %}
+        <div>
+            <p class="title">{{ result['title'] }}</p>
+            <p class="artist">by {{ result['artist'] }}</p>
+            <p class="year">({{ result['year'] }})</p>
+            <img src="{{ result['image_url']}}" />
+            <!-- <button>Subscribe</button> -->
+			<!-- <button
+				class="subscribe-button"
+				data-title="{{ result['title'] }}"
+				data-artist="{{ result['artist'] }}"
+				data-year="{{ result['year'] }}"
+				onclick=""
+			>
+				Subscribe
+			</button> -->
+    		<form method="POST" action="{{ url_for('subscribe') }}">
+				<input type="hidden" id="title" name="title" value="{{ result['title']}}">
+				<input type="hidden" id="artist" name="artist" value="{{ result['artist']}}">
+				<input type="hidden" id="year" name="year" value="{{ result['year']}}">
+
+        		<input type="submit" value="Subscribe">
+    		</form>
+
+        </div>
+        {% endfor %}
+
+	</div>
+    {% endif %}
+
+	<hr>
+
+	<h2>
+		Subscriptions
+	</h2>
+	{% if not session['subscriptions'] %}
+	<h3>
+		No subscriptions.
+	</h3>
+	{% endif %}
+	{% if session['subscriptions'] %}
+	<div class="subs">
+		{% for sub in session['subscriptions'] %}
+        	<div class="title-card">
+				<div>
+            		<p class="title">{{ sub['title'] }}</p>
+            		<p class="artist">by {{ sub['artist'] }}</p>
+            		<p class="year">({{ sub['year'] }})</p>
+				</div>
+            	<!-- <li>{{ sub['subscription_id'] }}</li> -->
+            	<img src="{{ sub['img_url']}}" />
+    			<form class="unsub-btn" method="POST" action="{{ url_for('unsubscribe') }}">
+					<input type="hidden" id="subid" name="subid" value="{{ sub['subscription_id'] }}">
+        			<input type="submit" value="Unsubscribe">
+    			</form>
+			</div>
+    	{% endfor %}
+	</div>
+	{% endif %}
+
+</body>
+</html>

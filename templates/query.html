@@ -1,0 +1,16 @@
+<h2>
+    Search
+</h2>
+
+<form method="POST" action="{{ url_for('user_account') }}">
+    <label for="title">Title</label>
+    <input type="text" id="title" name="title">
+
+    <label for="year">Year</label>
+    <input type="number" id="year" name="year">
+
+    <label for="artist">Artist</label>
+    <input type="text" id="artist" name="artist">
+
+    <input type="submit" value="Search">
+</form>
