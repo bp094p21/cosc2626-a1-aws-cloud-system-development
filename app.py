@@ -2,20 +2,11 @@ from subs import get_subscriptions, subscribe_new, unsubscribe_music
 from search import search_music
 from login import login_user
 from register import register_user
-import json
-import uuid
-import ast
-import boto3
-from flask import Flask, jsonify, render_template, request, redirect, url_for, session
+
+from flask import Flask, render_template, request, redirect, url_for, session
 
 app = Flask(__name__)
 app.secret_key = 'secret'
-
-dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
-table_login = dynamodb.Table('login')
-table_music = dynamodb.Table('music')
-table_subscriptions = dynamodb.Table('subscriptions')
-s3 = boto3.client('s3')
 
 # Home page
 @app.route('/')
@@ -29,14 +20,14 @@ def login():
         email = request.form['email']
         password = request.form['password']
         # Authenticate login
-        user = login_user(email, password, dynamodb, api=True)
+        user = login_user(email, password)
         # Success
         if user:
             # Store user data in session
             session['email'] = email
             session['username'] = user.get('user_name')
             # Update subscriptions
-            session['subscriptions'] = get_subscriptions(email, dynamodb, api=True)
+            session['subscriptions'] = get_subscriptions(email)
             # Redirect to the user account page if the login is successful
             return redirect(url_for('user_account'))
         # Fail
@@ -54,10 +45,11 @@ def register():
         username = request.form['username']
         password = request.form['password']
         # If email matches w/ table, show "Email already exists" on register page
-        user = register_user(email, username, password, api=True)
+        user = register_user(email, username, password)
         # New Registration successful
         if user:
-            return redirect(url_for('login'))
+            msg_new_user = "Successfully Registered. Login with your email."
+            return render_template('login.html', msg=msg_new_user)
         # Email already registered
         else:
             error = 'Email already exists.'
@@ -78,7 +70,7 @@ def user_account():
             error_msg = "Please enter at least one value in input fields."
             return render_template('account.html', user=session, msg=error_msg)
 
-        result = search_music(title, year_value, artist, dynamodb, api=True)
+        result = search_music(title, year_value, artist)
         # Results found
         if result:
             session['results'] = result
@@ -104,8 +96,8 @@ def subscribe():
         error = 'You are already subscribed to ' + title + '.'
         return render_template('account.html', user=session, msg=error)
 
-    subscribe_new(email, title, artist, year, dynamodb, api=True)
-    session['subscriptions'] = get_subscriptions(email, dynamodb, api=True)
+    subscribe_new(email, title, artist, year)
+    session['subscriptions'] = get_subscriptions(email)
     success_msg = "Successfully subscribed to " + title + "!"
     session.pop('results', None)
 
@@ -115,9 +107,9 @@ def subscribe():
 def unsubscribe():
     email = session['email']
     subscription_id = request.form['subid']
-    unsubscribe_music(email, subscription_id, dynamodb, api=True)
+    unsubscribe_music(email, subscription_id)
 
-    session['subscriptions'] = get_subscriptions(email, dynamodb, api=True)
+    session['subscriptions'] = get_subscriptions(email)
     session.pop('results', None)
 
     return render_template('account.html', user=session)
